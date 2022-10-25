@@ -1,5 +1,5 @@
 # Domain Agnostic Soft Prompt 
-Prompt-based learning has been a new learning paradigm which is abetter way to extract knowledge from pre-trained language model. This work is based on soft prompt tuning which can be easily updated by gradient descent to obtain the optimal prompt in a handcrafted-free way. Domain-agnostic soft prompt can be directly applied to any domains data which are unseen during training.
+Prompt-based learning has been a new learning paradigm which is a better way to extract knowledge from pre-trained language model. This work is based on soft prompt tuning which can be easily updated by gradient descent to obtain the optimal prompt in a handcrafted-free way. Domain-agnostic soft prompt can be directly applied to any domains data which are unseen during training.
 ## Environment setup
 ```
 pip install -r requirements.txt
@@ -30,7 +30,7 @@ python train_dasp.py \
 --inner_step 4
 ```
 
-### soft prompt
+<!-- ### soft prompt
 ```
 python train_sp.py \
 ```
@@ -38,4 +38,4 @@ python train_sp.py \
 ### fine-tune
 ```
 python train_ft.py
-```
+``` -->
