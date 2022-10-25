@@ -85,25 +85,6 @@ def constructAmazon(dataPath, domains):
                 #dataset[domain]['unlabel'].append(input_example)
                 dataset[domain]['unlabel'].append(content[1])
     return dataset
-
-def constructMNLI(dataPath):
-    dataset = {}
-    domains = ['government', 'telephone', 'fiction', 'travel', 'slate']
-    splits = ['train', 'test']
-    for domain in domains:
-        dataset[domain] = {}
-        for split in splits:
-            dataset[domain][split] = []
-            with open(os.path.join(dataPath, domain, domain + '.' + split + '.txt'), encoding='utf-8') as f:
-                for idx, line in enumerate(f):
-                    content = line.strip().split('\t')
-                    input_example = InputExample(
-                        text_a=content[1], text_b = content[2], label=int(content[0]), guid=idx)
-                    
-                    dataset[domain][split].append(input_example)
-                    
-    return dataset
-
     
 def zero_shot_eval(model, dataloader, device):
     allpreds = []
@@ -125,35 +106,35 @@ def zero_shot_eval(model, dataloader, device):
 
     return test_acc
 
-def collate_fct(tasks):
-    r'''
-    This function is used to collate the input_features.
+#def collate_fct(tasks):
+#    r'''
+#    This function is used to collate the input_features.
 
-    Args:
-        batch (:obj:`List[Union[Dict, InputFeatures]]`): A batch of the current data.
+#    Args:
+#        batch (:obj:`List[Union[Dict, InputFeatures]]`): A batch of the current data.
 
-    Returns:
-        :obj:`InputFeatures`: Return the :py:class:`~openprompt.data_utils.data_utils.InputFeatures of the current batch of data.
-    '''
-    return_tasks = []
+#    Returns:
+#        :obj:`InputFeatures`: Return the :py:class:`~openprompt.data_utils.data_utils.InputFeatures of the current batch of data.
+#    '''
+#    return_tasks = []
     
-    for t in tasks:
-        task = []
-        for data in t:
-            elem = data[0]
-            return_dict = {}
-            for key in elem:
-                if key == "encoded_tgt_text":
-                    return_dict[key] = [d[key] for d in data]
-                else:
-                    try:
-                        return_dict[key] = default_collate([d[key] for d in data])
-                    except:
-                        print(f"key{key}\n d {[data[i][key] for i in range(len(data))]} ")
-            return_features = InputFeatures(**return_dict)
-            task.append(return_features)
-        return_tasks.append(task)
-    return InputFeatures(**return_dict)
+#    for t in tasks:
+#        task = []
+#        for data in t:
+#            elem = data[0]
+#            return_dict = {}
+#            for key in elem:
+#                if key == "encoded_tgt_text":
+#                    return_dict[key] = [d[key] for d in data]
+#                else:
+#                    try:
+#                        return_dict[key] = default_collate([d[key] for d in data])
+#                    except:
+#                        print(f"key{key}\n d {[data[i][key] for i in range(len(data))]} ")
+#            return_features = InputFeatures(**return_dict)
+#            task.append(return_features)
+#        return_tasks.append(task)
+#    return InputFeatures(**return_dict)
 
 def extract_unlabel(dataPath, domain):
     extract = False
@@ -177,54 +158,6 @@ def extract_unlabel(dataPath, domain):
         for review in reviews:
             f.write(review+"\n")
     print(domain, f": {len(reviews)}, {len(set(reviews))}")
-    #for review in reviews[:5]:
-    #    print(review+"\n")
-        
-
-def processMLNI(dataPath, targetPath, train=True):
-    if train:
-        datapath = "/home/thesis/multinli/multinli_1.0/multinli_1.0_train.jsonl"
-    else:
-        datapath = "/home/thesis/multinli/multinli_1.0/multinli_1.0_dev_matched.jsonl"
-    targetpath = "/home/thesis/multinli/processed/"
-    if not os.path.isdir(targetpath):
-        os.mkdir(targetpath)
-    dataDict = {}
-    labelDict = {'entailment': '0', 'neutral': '1', 'contradiction': '2'}
-
-    with open(datapath, encoding='utf-8') as f:
-        json_list = list(f)
-    for json_str in tqdm(json_list):
-        result = json.loads(json_str)
-        domain = result['genre']
-        if not os.path.isdir(targetpath+domain):
-            os.mkdir(targetpath+domain)
-        if domain not in dataDict.keys():
-            dataDict[domain] = []
-
-        try:
-            text = labelDict[result['gold_label']] + '\t' + \
-                result['sentence1'] + '\t' + result['sentence2'] + '\n'
-        except:
-            continue
-
-        dataDict[domain].append(text)
-
-    if train:
-        for domain in dataDict.keys():
-            
-            dataSize = len(dataDict[domain])
-            print(domain, len(dataDict[domain]))
-            downsampleSize = int(dataSize/30)
-            print(domain, downsampleSize)
-            dataset = random.sample(dataDict[domain], downsampleSize)
-            print(domain, len(dataset))
-            
-            with open(os.path.join(targetpath, domain, domain+'.train.txt'), 'w') as f:
-                for line in tqdm(dataset):
-                    f.write(line)
-            print()
-
 
 def save_model(model, save_dir, model_name):
     if not os.path.exists(save_dir):
@@ -254,13 +187,13 @@ def latent_visualization(model_path, domain, prompt=True):
     latents = []
 
     if not prompt:
-        embeddings = np.load(f'embeddings/ft.npz')
+        embeddings = np.load(f'/home/thesis/PromptLearning/embeddings/ft.npz')
         latents = embeddings['e']
         domain_labels = embeddings['d']
         labels = embeddings['l']
 
     else:
-        if not os.path.exists(f'embeddings/{domain}/{model_name}.npz'):
+        if not os.path.exists(f'/home/thesis/PromptLearning/embeddings/{domain}/{model_name}.npz'):
             for idx, doma in enumerate(domains):
                 d = dataset[doma]['train']+dataset[doma]['test']
                 #d = d[:100]
@@ -289,11 +222,11 @@ def latent_visualization(model_path, domain, prompt=True):
                     mask_latent = hidden_outs[torch.arange(len(hidden_outs)), mask_idx]
                     latents.extend(mask_latent.tolist())
                     labels.extend(batch['label'].tolist())
-            if not os.path.exists(f'embeddings/{domain}/'):
-                os.mkdir(f'embeddings/{domain}/')
-            np.savez(f'embeddings/{domain}/{model_name}.npz', e=mask_latents, d=domain_labels, l = labels)
+            if not os.path.exists(f'/home/thesis/PromptLearning/embeddings/{domain}/'):
+                os.mkdir(f'/home/thesis/PromptLearning/embeddings/{domain}/')
+            np.savez(f'/home/thesis/PromptLearning/embeddings/{domain}/{model_name}.npz', e=mask_latents, d=domain_labels, l = labels)
         else:
-            embeddings = np.load(f'embeddings/{domain}/{model_name}.npz')
+            embeddings = np.load(f'/home/thesis/PromptLearning/embeddings/{domain}/{model_name}.npz')
             latents = embeddings['e']
             domain_labels = embeddings['d']
             labels = embeddings['l']
@@ -348,11 +281,11 @@ def latent_visualization(model_path, domain, prompt=True):
 
         plt.legend()
         if not prompt:
-            plt.savefig('fig/ft.pdf')
+            plt.savefig('/home/thesis/PromptLearning/fig/ft.png')
         else:
             if not os.path.exists(f'fig/{domain}/'):
                 os.mkdir(f'fig/{domain}/')
-            plt.savefig(f'fig/{domain}/{model_name}_{t}.pdf')
+            plt.savefig(f'fig/{domain}/{model_name}_{t}.png', bbox_inches='tight')
 
 def soft_prompt_interpretation(model_path, domain):
     model = torch.load(model_path, map_location=torch.device('cpu'))
@@ -435,17 +368,6 @@ def attention_visualization(model_path, domain):
         fig = fig.get_figure()
         fig.savefig(f'fig/avg_att{sp}.pdf')
         fig.clf()
-        #fig, axes = plt.subplots( rows,cols, figsize = (14,30))
-        #axes = axes.flat
-        #for i,att in enumerate(sp_attentions):
-        #    ids = [*range(att.shape[1])][1:-1]
-        #    att = att[:,ids]
-        #    #im = axes[i].imshow(att, cmap='gray')
-        #    sns.heatmap(att, vmin = 0, vmax = 1, ax = axes[i], xticklabels = np.array(text_inputs)[ids])
-        #    axes[i].set_title(f'head - {i} ' )
-        #    axes[i].set_ylabel('layers')
-        #plt.savefig(f'fig/att{sp}.pdf')
-    #print(inputs_embeds, inputs_embeds.shape)
 
 def mask_prediction(model_path, sentence, soft=True):
     model = torch.load(model_path, map_location=torch.device('cpu'))
@@ -497,22 +419,51 @@ def mask_prediction(model_path, sentence, soft=True):
     print(predicted_token_id)
     print(tokenizer.decode(predicted_token_id))
 
+def plot_soft_prompt_length():
+    domains = ['books', 'electronics', 'dvd', 'kitchen']
+    marker = ['o', '.', 'x', '^']
+    k = np.array([4, 8, 16, 32])
+    mu = np.array([2, 3, 5, 7, 10, 15, 20])
+
+    ## SST-2
+    acc = np.array([
+        [83.7, 87.45, 88.0, 88.3, 88.55, 88.2, 86.75],
+        [82.88, 82.33, 85.59, 87.79, 88.44, 88.2, 86.75],
+        [83.6, 85.8, 85.05, 85.5, 86.85, 86.1, 86.6],
+        [85.6, 87.45, 87.6, 89.8, 89.85, 89.2, 89.05]
+    ])
+
+    fig = plt.figure(figsize=(7,3))
+    for i in range(4):
+        plt.plot(acc[i], linestyle='-', marker=marker[i], linewidth=1, markersize=4, label=domains[i])
+        # plt.fill_between(range(5), mean[i]-std[i], mean[i]+std[i], alpha=0.18)
+        plt.xticks(ticks=np.arange(7), labels=mu, fontsize=14)
+
+    # plt.title('Amazon')
+    plt.xlabel('soft prompt length', fontsize=14)
+    plt.ylabel('Accuracy (%)', fontsize=14)
+    plt.legend(loc='lower right', prop={'size': 12})
+    plt.savefig('sp_length.png', bbox_inches='tight')
+    plt.close()
+
 if __name__ == '__main__':
-    domains = ['books', 'dvd', 'electronics', 'kitchen_housewares']
-    domain = 'books'
-    #model_name = "sp_{'batch_size': 8, 'epoch': 20, 'learning_rate': 0.0001, 'soft_tokens': 2, 'label_words': [['negative'], ['positive']], 'max_seq_length': 256}.pt"
-    #model_name = "meta_sp_0.863_t5.pt"
-    model_name = "meta_sp_0.8895_t5.pt"
-    #soft_prompt_interpretation(os.path.join('model', domain, model_name), domain)
-    #latent_visualization(os.path.join('model', domain, model_name), domain, prompt=True)
-    #attention_visualization(os.path.join('model', domain, model_name), domain)
-    sentence = "an excellent book for anyone that barbecues"
-    #sentence = "the author really just could not hook me . a lot about food but not sure what else"
-    #sentence = "this album contains only rap and no rock songs . this was very disappointing to say the least"
-    #sentence = "very comfortable and sexy . hanky panky is the standard in comfortable lace"
-    #sentence = "i am a huge fan of btnh , but even i will admitt this is not a good album ."
-    #sentence = "i still have not received this magazine , what is taking so long ! !"
-    #sentence = "sexy and well made . i am a size 12 , but i bought the queen size and it fit great"
-    mask_prediction(os.path.join('model', domain, model_name), sentence, soft=False)
+    plot_soft_prompt_length()
+    # domains = ['books', 'dvd', 'electronics', 'kitchen_housewares']
+    # domain = 'books'
+    # #model_name = "sp_{'batch_size': 8, 'epoch': 20, 'learning_rate': 0.0001, 'soft_tokens': 2, 'label_words': [['negative'], ['positive']], 'max_seq_length': 256}.pt"
+    # #model_name = "meta_sp_0.863_t5.pt"
+    # model_name = "meta_sp_0.8895_t5.pt"
+    # #soft_prompt_interpretation(os.path.join('model', domain, model_name), domain)
+    # #latent_visualization(os.path.join('model', domain, model_name), domain, prompt=True)
+    # #attention_visualization(os.path.join('model', domain, model_name), domain)
+    # sentence = "an excellent book for anyone that barbecues"
+    # #sentence = "the author really just could not hook me . a lot about food but not sure what else"
+    # #sentence = "this album contains only rap and no rock songs . this was very disappointing to say the least"
+    # #sentence = "very comfortable and sexy . hanky panky is the standard in comfortable lace"
+    # #sentence = "i am a huge fan of btnh , but even i will admitt this is not a good album ."
+    # #sentence = "i still have not received this magazine , what is taking so long ! !"
+    # #sentence = "sexy and well made . i am a size 12 , but i bought the queen size and it fit great"
+    # # mask_prediction(os.path.join('model', domain, model_name), sentence, soft=False)
+    # latent_visualization(os.path.join('/home/thesis/PromptLearning/model', domain, model_name), domain, prompt=True)
     
 
