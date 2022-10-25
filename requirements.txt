@@ -26,7 +26,7 @@ multidict==6.0.2
 multiprocess==0.70.12.2
 nltk==3.7
 numpy==1.22.3
-# -e git+https://github.com/thunlp/OpenPrompt.git@b3a7f34b0dd5958e7bef79dc8a4ec036137da4de#egg=openprompt
+-e git+https://github.com/thunlp/OpenPrompt.git@b3a7f34b0dd5958e7bef79dc8a4ec036137da4de#egg=openprompt
 packaging==21.3
 pandas==1.4.2
 pathtools==0.1.2
