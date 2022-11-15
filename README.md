@@ -6,7 +6,7 @@ pip install -r requirements.txt
 ```
 
 ## Dataset download
-download the dataset from https://www.cs.jhu.edu/~mdredze/datasets/sentiment/ for and https://github.com/FrankWork/fudan_mtl_reviews
+download the dataset from https://github.com/FrankWork/fudan_mtl_reviews
 
 ## Training
 
