@@ -13,22 +13,28 @@ download the dataset from https://github.com/FrankWork/fudan_mtl_reviews
 ### domain-agnostic soft prompt
 ```
 python train_dasp.py \
---data_path <path to dataset folder>
---dataset <amazon or mtl>
---test_domain <all domains or single domain>
---plm_type bert 
---plm bert-base-uncase
---max_seq 256
---epoch 10
---bz 8
---k_spt 8
---k_qry 8
---num_task 1000   
---task_bz 8     
---inner_lr 5e-5
---outer_lr 5e-5
---inner_step 4
+--data_path <path to dataset folder> \
+--dataset <amazon or mtl> \
+--test_domain <all domains or single domain> \
+--plm_type bert \
+--plm bert-base-uncase \
+--max_seq 256 \
+--epoch 10 \
+--bz 8 \
+--k_spt 8 \
+--k_qry 8 \
+--num_task 1000 \
+--task_bz 8 \
+--inner_lr 5e-5 \
+--outer_lr 5e-5 \
+--inner_step 4 \
 ```
+
+### meta soft prompt
+```
+python train_metasp.py
+```
+
 
 <!-- ### soft prompt
 ```
