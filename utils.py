@@ -324,7 +324,7 @@ def attention_visualization(model_path, domain):
     #sentence = "excellent movie that shows how families should be and how most african american families really are. [MASK]"
     #sentence = "very nice , warm blanket , but too big for a full size bed [MASK]"
     sentence = "this is an great book for anyone that cooks [MASK]"
-    inputs = tokenizer(sentence, return_tensors='pt')
+    inputs = tokenizer(sentence, return_tensors='pt', add_special_tokens = False)
     text_inputs = [tokenizer.decode([i]) for i in inputs['input_ids'][0]]
     print(text_inputs)
     #exit()
@@ -388,6 +388,10 @@ def mask_prediction(model_path, sentence, soft=True):
         inputs = tokenizer(prompted_sentence, return_tensors='pt')
         inputs_embeds = raw_embedding(inputs['input_ids'])
         soft_embeds = soft_embedding.repeat(batch_size, 1, 1)
+        
+        print(inputs_embeds.shape)
+        print(soft_embeds.shape)
+        exit()
         inputs_embeds = torch.cat([soft_embeds, inputs_embeds], 1)
         mask_idx = (inputs.input_ids == tokenizer.mask_token_id)[0].nonzero(as_tuple=True)[0]
         mask_idx += num_soft_tokens
@@ -443,27 +447,27 @@ def plot_soft_prompt_length():
     plt.xlabel('soft prompt length', fontsize=14)
     plt.ylabel('Accuracy (%)', fontsize=14)
     plt.legend(loc='lower right', prop={'size': 12})
-    plt.savefig('sp_length.png', bbox_inches='tight')
+    plt.savefig('sp_length.pdf', bbox_inches='tight')
     plt.close()
 
 if __name__ == '__main__':
     plot_soft_prompt_length()
     # domains = ['books', 'dvd', 'electronics', 'kitchen_housewares']
-    # domain = 'books'
+    domain = 'books'
     # #model_name = "sp_{'batch_size': 8, 'epoch': 20, 'learning_rate': 0.0001, 'soft_tokens': 2, 'label_words': [['negative'], ['positive']], 'max_seq_length': 256}.pt"
-    # #model_name = "meta_sp_0.863_t5.pt"
+    model_name = "meta_sp.pt"
     # model_name = "meta_sp_0.8895_t5.pt"
     # #soft_prompt_interpretation(os.path.join('model', domain, model_name), domain)
     # #latent_visualization(os.path.join('model', domain, model_name), domain, prompt=True)
     # #attention_visualization(os.path.join('model', domain, model_name), domain)
     # sentence = "an excellent book for anyone that barbecues"
-    # #sentence = "the author really just could not hook me . a lot about food but not sure what else"
+    sentence = "the author really just could not hook me . a lot about food but not sure what else"
     # #sentence = "this album contains only rap and no rock songs . this was very disappointing to say the least"
     # #sentence = "very comfortable and sexy . hanky panky is the standard in comfortable lace"
     # #sentence = "i am a huge fan of btnh , but even i will admitt this is not a good album ."
     # #sentence = "i still have not received this magazine , what is taking so long ! !"
     # #sentence = "sexy and well made . i am a size 12 , but i bought the queen size and it fit great"
-    # # mask_prediction(os.path.join('model', domain, model_name), sentence, soft=False)
+    mask_prediction(os.path.join('/home/thesis/PromptLearning/model', domain, model_name), sentence, soft=True)
     # latent_visualization(os.path.join('/home/thesis/PromptLearning/model', domain, model_name), domain, prompt=True)
     
 

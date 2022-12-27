@@ -140,6 +140,7 @@ def main():
 
         prompt_model = PromptForClassification(
             plm=plm, template=mytemplate, verbalizer=myverbalizer, freeze_plm=(not tune_plm), plm_eval_mode=False)
+        print(promt_model)
 
         ####### wandb section
         run_name = f'Meta test on {args.dataset} {testDomain}'
