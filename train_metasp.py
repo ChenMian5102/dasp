@@ -29,8 +29,8 @@ def main():
     # parser.add_argument("--dataset", default = 'amazon', type=str,
     #                     help="amazon or mtl")
     
-    # parser.add_argument("--test_domain", default='all', type=str,
-    #                     help="Test all domains or single domain")
+    parser.add_argument("--test_domain", default='all', type=str,
+                        help="Test all domains or single domain")
     
     parser.add_argument("--seed", default = 777, type=int, 
                         help="Random seed")

@@ -5,8 +5,8 @@ from openprompt.data_utils import InputExample, InputFeatures
 from openprompt import PromptForClassification
 from openprompt import PromptDataLoader
 from openprompt.data_utils.data_sampler import FewShotSampler
-from MetaTask import MetaTaskDataLoader
-from MetaLearner import Reptile, MAML
+from MetaTask_dasp import MetaTaskDataLoader
+from MetaLearner_dasp import Reptile, MAML
 from utils import *
 import argparse
 import torch
